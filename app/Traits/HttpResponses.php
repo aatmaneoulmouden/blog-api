@@ -16,7 +16,7 @@ trait HttpResponses
     {
         return response()->json(
             [
-                'status' => 'success',
+                'status' => 'successgi',
                 $dataLabel => $dataValue,
             ],
             $code
