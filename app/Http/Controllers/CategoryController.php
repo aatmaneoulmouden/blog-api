@@ -22,16 +22,16 @@ class CategoryController extends Controller
     {
         // Get authenticated user
         $user = $request->user();
-
+        
         // Check if user exist
         if (!$user) {
             return $this->error('User not found.', 422);
         }
-
+        
         // Get authenticated user's categories
         $categories = $user->categories()->get();
         $categoriesData = new CategoryCollection($categories);
-
+        
         return $this->success('categories', $categoriesData);
     }
 
@@ -64,6 +64,7 @@ class CategoryController extends Controller
             'slug' => Str::slug($categoryName),
         ]);
 
+        // Get category name
         $categoryData = new CategoryResource($category);
 
         // Return http response
@@ -83,7 +84,39 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
-        //
+        // Get authenticated user
+        $user = $request->user();
+
+        // Check if user exist
+        if (!$user) {
+            return $this->error('User not found.', 422);
+        }
+
+        // Check if category belongs to authenticated user
+        if (!$category->user_id == $user->id) {
+            return $this->error('Unauthorized.', 403);
+        }
+
+        // Get new category name
+        $categoryName = $request->input('name');
+
+        // Check if user already have cat. with the same name
+        $categoryExist = $user->categories()->where('name', $categoryName)->first();
+
+        if ($categoryExist) {
+            return $this->error('You already have a category with the same name.', 422);
+        }
+
+        // Update category
+        $category->update([
+            'name' => $categoryName,
+            'slug' => Str::slug($categoryName),
+        ]);
+
+        $categoryData = new CategoryResource($category);
+
+        // Return http response
+        return $this->success('category', $categoryData, 200);
     }
 
     /**
