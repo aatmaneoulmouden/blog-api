@@ -22,16 +22,16 @@ class CategoryController extends Controller
     {
         // Get authenticated user
         $user = $request->user();
-        
+
         // Check if user exist
         if (!$user) {
             return $this->error('User not found.', 422);
         }
-        
+
         // Get authenticated user's categories
         $categories = $user->categories()->get();
         $categoriesData = new CategoryCollection($categories);
-        
+
         return $this->success('categories', $categoriesData);
     }
 
@@ -89,7 +89,12 @@ class CategoryController extends Controller
 
         // Check if user exist
         if (!$user) {
-            return $this->error('User not found.', 422);
+            return $this->error('User not found.', 404);
+        }
+
+        // Check if category exist
+        if (!$category) {
+            return $this->error('Category not found.', 404);
         }
 
         // Check if category belongs to authenticated user
@@ -122,8 +127,30 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function destroy(Category $category, Request $request)
     {
-        //
+        // Get authenticated user
+        $user = $request->user();
+
+        // Check if user exist
+        if (!$user) {
+            return $this->error('User not found.', 404);
+        }
+
+        // Check if category exist
+        if (!$category) {
+            return $this->error('Category not found.', 404);
+        }
+
+        // Check if category belongs to authenticated user
+        if ($category->user_id != $user->id) {
+            return $this->error('Unauthorized.', 403);
+        }
+
+        // Delete category
+        $category->delete();
+
+        // Return http response
+        return $this->success(null, null, 204);
     }
 }
