@@ -10,6 +10,7 @@ use App\Http\Resources\CategoryResource;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -47,8 +48,10 @@ class CategoryController extends Controller
             return $this->error('User not found.', 422);
         }
 
+        $categoryName = $request->input('name');
+
         // Check if user already have cat. with the same name
-        $categoryExist = $user->categories()->where('name', $request->input('name'))->first();
+        $categoryExist = $user->categories()->where('name', $categoryName)->first();
 
         if ($categoryExist) {
             return $this->error('You already have a category with the same name.', 422);
@@ -57,7 +60,8 @@ class CategoryController extends Controller
         // Create category
         $category = Category::create([
             'user_id' => $user->id,
-            'name' => $request->input('name'),
+            'name' => $categoryName,
+            'slug' => Str::slug($categoryName),
         ]);
 
         $categoryData = new CategoryResource($category);
