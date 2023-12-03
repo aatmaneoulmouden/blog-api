@@ -93,7 +93,7 @@ class CategoryController extends Controller
         }
 
         // Check if category belongs to authenticated user
-        if (!$category->user_id == $user->id) {
+        if ($category->user_id != $user->id) {
             return $this->error('Unauthorized.', 403);
         }
 
