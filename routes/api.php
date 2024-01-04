@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,3 +30,4 @@ Route::group(['as' => 'users.', 'controller' => UserController::class], function
 
 // Category routes
 Route::apiResource('categories', CategoryController::class)->middleware('auth:sanctum');
+Route::apiResource('tags', TagController::class)->middleware('auth:sanctum');

@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 class CategoryController extends Controller
 {
     use HttpResponses;
+    
     /**
      * Display a listing of the resource.
      */
@@ -64,7 +65,7 @@ class CategoryController extends Controller
             'slug' => Str::slug($categoryName),
         ]);
 
-        // Get category name
+        // Get category data
         $categoryData = new CategoryResource($category);
 
         // Return http response
