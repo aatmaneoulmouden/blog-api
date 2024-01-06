@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePostRequest;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
+use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
+    use HttpResponses;
+    
     /**
      * Display a listing of the resource.
      */
@@ -19,7 +24,7 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
         // Get authenticated user
         $user = $request->user();
@@ -31,25 +36,27 @@ class PostController extends Controller
 
         // Check if user already have a post with the same title
         $postTitle = $request->input('title');
-        $postTitle = $user->posts()->where('title', $postTitle)->first();
+        $postExist = $user->posts()->where('title', $postTitle)->first();
 
-        if ($postTitle) {
+        if ($postExist) {
             return $this->error('You already have a post with the same title.', 422);
         }
 
         // Create post
         $post = Post::create([
             'user_id' => $user->id,
-            'user_id' => $user->id,
-            'name' => $postTitle,
+            'title' => $postTitle,
             'slug' => Str::slug($postTitle),
+            'short_description' => $request->input('short_description'),
+            'content' => $request->input('content'),
+            'featured_image' => $request->input('featured_image'),
         ]);
 
-        // Get tag data
-        $tagData = new TagResource($tag);
+        // Get post data
+        $postData = new PostResource($post);
 
         // Return http response
-        return $this->success('category', $tagData, 201);
+        return $this->success('post', $postData, 201);
     }
 
     /**
