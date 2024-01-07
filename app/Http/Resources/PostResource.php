@@ -21,6 +21,12 @@ class PostResource extends JsonResource
             'shortDescription' => $this->short_description,
             'content' => $this->content,
             'featuredImageUrl' => $this->featured_image,
+            'categories' => $this->categories->map(function ($category) {
+                return [
+                    'id' => (string)$category->id,
+                    'name' => $category->name,
+                ];
+            }),
             'author' => [
                 'id' => (string)$this->user->id,
             ]

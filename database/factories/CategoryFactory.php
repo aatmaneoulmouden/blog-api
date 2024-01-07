@@ -72,12 +72,22 @@ class CategoryFactory extends Factory
             "Urban Exploration & City Life"
         ];
 
-        $catogory = Arr::random($categories);
+        // Select a random user
+        $user = User::inRandomOrder()->first();
+
+        // Get category names already assigned to the user
+        $assignedCategories = $user->categories->pluck('name')->toArray();
+
+        // Filter out the assigned categories from the original list
+        $availableCategories = array_diff($categories, $assignedCategories);
+
+        // Select a random category from the available ones
+        $categoryName = Arr::random($availableCategories);
 
         return [
             'user_id' => User::inRandomOrder()->first()->id,
-            'name' => $catogory,
-            'slug' => Str::slug($catogory),
+            'name' => $categoryName,
+            'slug' => Str::slug($categoryName),
         ];
     }
 }

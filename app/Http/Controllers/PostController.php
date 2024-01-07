@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\PostResource;
+use App\Models\Category;
 use App\Models\Post;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 class PostController extends Controller
 {
     use HttpResponses;
-    
+
     /**
      * Display a listing of the resource.
      */
@@ -42,6 +43,21 @@ class PostController extends Controller
             return $this->error('You already have a post with the same title.', 422);
         }
 
+        // Validate categories
+        $userCategories = $user->categories()->distinct()->pluck('id')->toArray();
+        $categoriesIds = $request->input('categories', []);
+        
+        if ($categoriesIds) {
+            foreach ($categoriesIds as $categoryId) {
+                if (!in_array($categoryId, $userCategories)) {
+                    // Normaly will create it as new category,
+                    // BUT Now return just an error message
+                    $notExistingCategoryName = Category::whereId($categoryId)->pluck('name')->first();
+                    return $this->error("You don't own '" . $notExistingCategoryName .  "' category, please create it first!", 400);
+                }
+            }
+        }
+        
         // Create post
         $post = Post::create([
             'user_id' => $user->id,
@@ -51,6 +67,9 @@ class PostController extends Controller
             'content' => $request->input('content'),
             'featured_image' => $request->input('featured_image'),
         ]);
+          
+        // Assign categories to post
+        $post->categories()->attach($categoriesIds);
 
         // Get post data
         $postData = new PostResource($post);
