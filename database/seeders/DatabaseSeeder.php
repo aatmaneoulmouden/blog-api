@@ -23,11 +23,21 @@ class DatabaseSeeder extends Seeder
             'super_admin' => true,
         ]);
 
+        // Create regural user
+        \App\Models\User::factory()->create([
+            'first_name' => 'Regural',
+            'last_name' => 'User',
+            'username' => 'reguraluser',
+            'email' => 'reguraluser@email.com',
+            'password' => Hash::make('Pa$$w0rd'),
+            'super_admin' => false,
+        ]);
+
         // Seed database
-        \App\Models\User::factory(10)->create();
-        \App\Models\Category::factory(50)->create();
-        \App\Models\Tag::factory(100)->create();
-        
+        // \App\Models\User::factory(10)->create();
+        // \App\Models\Category::factory(50)->create();
+        // \App\Models\Tag::factory(100)->create();
+
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
