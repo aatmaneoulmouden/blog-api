@@ -11,7 +11,7 @@ class UpdateCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->super_admin === 1; // Return true if current user is a super admin
     }
 
     /**

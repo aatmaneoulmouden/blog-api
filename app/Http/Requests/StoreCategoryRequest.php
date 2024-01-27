@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+
 class StoreCategoryRequest extends FormRequest
 {
     /**
@@ -10,7 +11,7 @@ class StoreCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->super_admin === 1; // Return true if current user is a super admin
     }
 
     /**
