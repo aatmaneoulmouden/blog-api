@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 class CategoryController extends Controller
 {
     use HttpResponses;
-    
+
     /**
      * Display a listing of the resource.
      */
@@ -46,21 +46,25 @@ class CategoryController extends Controller
 
         // Check if user exist
         if (!$user) {
-            return $this->error('User not found.', 422);
+            return $this->error('User not found.', 404);
+        }
+
+        // Check if user a super admin
+        if (!$user->super_admin) {
+            return $this->error('User is not a super admin.', 401);
         }
 
         $categoryName = $request->input('name');
 
-        // Check if user already have cat. with the same name
-        $categoryExist = $user->categories()->where('name', $categoryName)->first();
+        // Check if category is already exists
+        $categoryExist = Category::where('name', $categoryName)->first();
 
         if ($categoryExist) {
-            return $this->error('You already have a category with the same name.', 422);
+            return $this->error('Category already exists.', 422);
         }
 
         // Create category
         $category = Category::create([
-            'user_id' => $user->id,
             'name' => $categoryName,
             'slug' => Str::slug($categoryName),
         ]);
@@ -93,24 +97,24 @@ class CategoryController extends Controller
             return $this->error('User not found.', 404);
         }
 
+        // Check if user a super admin
+        if (!$user->super_admin) {
+            return $this->error('User is not a super admin.', 401);
+        }
+
         // Check if category exist
         if (!$category) {
             return $this->error('Category not found.', 404);
         }
 
-        // Check if category belongs to authenticated user
-        if ($category->user_id != $user->id) {
-            return $this->error('Unauthorized.', 403);
-        }
-
         // Get new category name
         $categoryName = $request->input('name');
 
-        // Check if user already have cat. with the same name
+        // Check if category is already exists
         $categoryExist = $user->categories()->where('name', $categoryName)->first();
 
         if ($categoryExist) {
-            return $this->error('You already have a category with the same name.', 422);
+            return $this->error('Category already exists.', 422);
         }
 
         // Update category
