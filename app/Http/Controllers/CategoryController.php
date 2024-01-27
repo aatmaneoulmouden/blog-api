@@ -142,14 +142,14 @@ class CategoryController extends Controller
             return $this->error('User not found.', 404);
         }
 
+        // Check if user a super admin
+        if (!$user->super_admin) {
+            return $this->error('User is not a super admin.', 401);
+        }
+
         // Check if category exist
         if (!$category) {
             return $this->error('Category not found.', 404);
-        }
-
-        // Check if category belongs to authenticated user
-        if ($category->user_id != $user->id) {
-            return $this->error('Unauthorized.', 403);
         }
 
         // Delete category
