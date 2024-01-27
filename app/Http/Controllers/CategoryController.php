@@ -30,7 +30,7 @@ class CategoryController extends Controller
         }
 
         // Get authenticated user's categories
-        $categories = $user->categories()->get();
+        $categories = Category::all();
         $categoriesData = new CategoryCollection($categories);
 
         return $this->success('categories', $categoriesData);
