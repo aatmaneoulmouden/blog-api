@@ -35,29 +35,31 @@ class PostController extends Controller
             return $this->error('User not found.', 422);
         }
 
-        // Check if user already have a post with the same title
+        // Duplicated title check
         $postTitle = $request->input('title');
         $postExist = $user->posts()->where('title', $postTitle)->first();
 
         if ($postExist) {
-            return $this->error('You already have a post with the same title.', 422);
+            return $this->error('The title is already taken.', 422);
         }
 
         // Validate categories
-        $userCategories = $user->categories()->distinct()->pluck('id')->toArray();
-        $categoriesIds = $request->input('categories', []);
-        
-        if ($categoriesIds) {
-            foreach ($categoriesIds as $categoryId) {
-                if (!in_array($categoryId, $userCategories)) {
-                    // Normaly will create it as new category,
-                    // BUT Now return just an error message
-                    $notExistingCategoryName = Category::whereId($categoryId)->pluck('name')->first();
-                    return $this->error("You don't own '" . $notExistingCategoryName .  "' category, please create it first!", 400);
-                }
+        // TODO: availableCategories => get only active categories
+        $availableCategories = Category::pluck('id')->toArray();
+        $selectedCategories = $request->input('categories', []);
+        $unavailableCategories = [];
+        foreach ($selectedCategories as $category) {
+            if (!in_array($category, $availableCategories)) {
+                array_push($unavailableCategories, $category);
             }
         }
+
+        if ($unavailableCategories) {
+            return $this->error('Some categories not found.', 404);
+        }
         
+        // TODO: Validate tags
+
         // Create post
         $post = Post::create([
             'user_id' => $user->id,
@@ -67,9 +69,9 @@ class PostController extends Controller
             'content' => $request->input('content'),
             'featured_image' => $request->input('featured_image'),
         ]);
-          
+
         // Assign categories to post
-        $post->categories()->attach($categoriesIds);
+        $post->categories()->attach($selectedCategories);
 
         // Get post data
         $postData = new PostResource($post);
