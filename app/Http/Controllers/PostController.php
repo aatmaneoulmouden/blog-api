@@ -6,6 +6,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\Tag;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -57,8 +58,18 @@ class PostController extends Controller
         if ($unavailableCategories) {
             return $this->error('Some categories not found.', 404);
         }
-        
-        // TODO: Validate tags
+
+        // Validate tags
+        $insertedTags = $request->input('tags');
+        $validatedTags = [];
+        foreach ($insertedTags as $tagName) {
+            $tag = Tag::firstOrCreate(
+                ['name' => $tagName],
+                ['slug' => Str::slug($tagName), 'user_id' => $user->id]
+            );
+
+            array_push($validatedTags, $tag->id);
+        }
 
         // Create post
         $post = Post::create([
@@ -71,7 +82,10 @@ class PostController extends Controller
         ]);
 
         // Assign categories to post
-        $post->categories()->attach($selectedCategories);
+        $post->categories()->sync($selectedCategories);
+
+        // Assign tags to post
+        $post->tags()->sync($validatedTags);
 
         // Get post data
         $postData = new PostResource($post);

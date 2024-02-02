@@ -27,6 +27,12 @@ class PostResource extends JsonResource
                     'name' => $category->name,
                 ];
             }),
+            'tags' => $this->tags->map(function ($tag) {
+                return [
+                    'id' => (string)$tag->id,
+                    'name' => $tag->name,
+                ];
+            }),
             'author' => [
                 'id' => (string)$this->user->id,
             ]
