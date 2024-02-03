@@ -31,5 +31,5 @@ Route::group(['as' => 'users.', 'controller' => UserController::class], function
 
 // Category routes
 Route::apiResource('categories', CategoryController::class)->middleware('auth:sanctum');
-Route::apiResource('tags', TagController::class)->middleware('auth:sanctum');
+Route::apiResource('tags', TagController::class)->only('index')->middleware(['auth:sanctum', 'superadmin']);
 Route::apiResource('posts', PostController::class)->middleware('auth:sanctum');
